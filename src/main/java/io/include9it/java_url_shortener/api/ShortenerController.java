@@ -5,8 +5,11 @@ import io.include9it.java_url_shortener.service.ShortenerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/shortener")
@@ -22,6 +25,11 @@ public class ShortenerController {
 
     @GetMapping(value = "{shortenerId}")
     public ResponseEntity<Void> redirect(@PathVariable @Pattern(regexp = "^[0-9A-Fa-f]+$") String shortenerId) {
-        return service.redirect(shortenerId);
+        String redirectUrl = service.getSourceUrl(shortenerId);
+
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .location(URI.create(redirectUrl))
+                .build();
     }
 }

@@ -5,11 +5,7 @@ import io.include9it.java_url_shortener.db.ShortenerRepository;
 import io.include9it.java_url_shortener.db.ShortenerStorageEntity;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.net.URI;
 
 @Service
 @RequiredArgsConstructor
@@ -23,23 +19,7 @@ public class ShortenerService {
         return httpRequest.getRequestURL() + "/" + Long.toHexString(entity.getId());
     }
 
-    public ResponseEntity<Void> redirect(String shortenerHexId) {
-        String redirectUrl = getSourceUrl(shortenerHexId);
-
-        return ResponseEntity
-                .status(HttpStatus.FOUND)
-                .location(URI.create(redirectUrl))
-                .build();
-    }
-
-    private ShortenerStorageEntity saveSourceUrl(ShortenerRequest request) {
-        var entity = new ShortenerStorageEntity();
-        entity.setSourceUrl(request.sourceUrl());
-
-        return repository.save(entity);
-    }
-
-    private String getSourceUrl(String shortenerHexId) {
+    public String getSourceUrl(String shortenerHexId) {
         Long shortenerId = Long.parseLong(shortenerHexId, 16);
 
         ShortenerStorageEntity entity = repository.findById(shortenerId)
@@ -48,5 +28,12 @@ public class ShortenerService {
                 ));
 
         return entity.getSourceUrl();
+    }
+
+    private ShortenerStorageEntity saveSourceUrl(ShortenerRequest request) {
+        var entity = new ShortenerStorageEntity();
+        entity.setSourceUrl(request.sourceUrl());
+
+        return repository.save(entity);
     }
 }
